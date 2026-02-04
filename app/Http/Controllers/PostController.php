@@ -60,7 +60,10 @@ class PostController extends Controller
     public function edit(string $id)
     {
         $post = Post::findOrFail($id);
-        $this->authorize('update', $post);
+
+        if (! request()->user()->can('update', $post)) {
+            abort(403);
+        }
 
         return 'posts.edit';
     }
@@ -71,7 +74,10 @@ class PostController extends Controller
     public function update(UpdatePostRequest $request, string $id)
     {
         $post = Post::findOrFail($id);
-        $this->authorize('update', $post);
+
+        if (! $request->user()->can('update', $post)) {
+            abort(403);
+        }
 
         $post->update($request->validated());
 
@@ -84,7 +90,10 @@ class PostController extends Controller
     public function destroy(string $id)
     {
         $post = Post::findOrFail($id);
-        $this->authorize('delete', $post);
+
+        if (! request()->user()->can('delete', $post)) {
+            abort(403);
+        }
 
         $post->delete();
 
