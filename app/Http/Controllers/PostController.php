@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePostRequest;
 use App\Http\Requests\UpdatePostRequest;
+use App\Http\Resources\PostResource;
 use App\Models\Post;
 
 class PostController extends Controller
@@ -13,12 +14,11 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::where('is_draft', false)
-            ->where('published_at', '<=', now())
+        $posts = Post::active()
             ->with('user')
             ->paginate(20);
 
-        return response()->json($posts);
+        return PostResource::collection($posts);
     }
 
     /**
@@ -47,12 +47,11 @@ class PostController extends Controller
      */
     public function show(string $id)
     {
-        $post = Post::where('id', $id)
-            ->where('is_draft', false)
-            ->where('published_at', '<=', now())
-            ->firstOrFail();
+        $post = Post::active()
+            ->with('user')
+            ->findOrFail($id);
 
-        return response()->json($post);
+        return new PostResource($post);
     }
 
     /**
@@ -60,7 +59,8 @@ class PostController extends Controller
      */
     public function edit(string $id)
     {
-        $this->authorize('update', Post::findOrFail($id));
+        $post = Post::findOrFail($id);
+        $this->authorize('update', $post);
 
         return 'posts.edit';
     }
@@ -70,9 +70,9 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, string $id)
     {
-        $this->authorize('update', Post::findOrFail($id));
-
         $post = Post::findOrFail($id);
+        $this->authorize('update', $post);
+
         $post->update($request->validated());
 
         return response()->json($post);
@@ -83,9 +83,9 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        $this->authorize('delete', Post::findOrFail($id));
-
         $post = Post::findOrFail($id);
+        $this->authorize('delete', $post);
+
         $post->delete();
 
         return response()->json(['message' => 'Post deleted successfully.']);
