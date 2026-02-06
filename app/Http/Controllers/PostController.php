@@ -45,11 +45,11 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Post $post)
     {
         $post = Post::active()
             ->with('user')
-            ->findOrFail($id);
+            ->findOrFail($post->id);
 
         return new PostResource($post);
     }
@@ -57,9 +57,9 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Post $post)
     {
-        $post = Post::findOrFail($id);
+        $post = Post::findOrFail($post->id);
 
         if (! request()->user()->can('update', $post)) {
             abort(403);
