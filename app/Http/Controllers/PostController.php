@@ -71,10 +71,8 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePostRequest $request, string $id)
+    public function update(UpdatePostRequest $request, Post $post)
     {
-        $post = Post::findOrFail($id);
-
         if (! $request->user()->can('update', $post)) {
             abort(403);
         }
@@ -87,10 +85,8 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Post $post)
     {
-        $post = Post::findOrFail($id);
-
         if (! request()->user()->can('delete', $post)) {
             abort(403);
         }
